@@ -5,7 +5,11 @@ from rest_framework.test import APITestCase
 
 from cicovapp.models import Product
 from cicovapp.serializers import ProductSerializer
-from cicovapp.views import product_list, product_detail
+from cicovapp.views import (product_list, product_detail,
+                            rfe_list, rfe_detail,
+                            test_id_list, test_id_detail,
+                            job_result_list, job_result_detail,
+                            test_result_list, test_result_detail)
 
 
 class SerializationTests(TestCase):
@@ -54,3 +58,54 @@ class ApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('version', response.data, response)
         self.assertEqual(response.data['version'], "10")
+
+    def test_create_rfe(self):
+        response = self.client.post(reverse(rfe_list),
+                                    {"title": "RFE 1",
+                                     "url": "http://bz.com/1"})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('id', response.data)
+        response = self.client.get(reverse(rfe_detail, args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], "RFE 1")
+
+    def test_create_test_id(self):
+        response = self.client.post(reverse(test_id_list),
+                                    {"name": "TEST_ID 1",
+                                     "url": "http://bz.com/1"})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('id', response.data)
+        response = self.client.get(reverse(test_id_detail, args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], "TEST_ID 1")
+
+    def test_create_job_result(self):
+        response = self.create_product()
+        response = self.client.post(reverse(job_result_list),
+                                    {"product": response.data['id'],
+                                     "ip": "127.0.0.1",
+                                     "url": "http://jenkins.com/1"})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('id', response.data)
+        response = self.client.get(reverse(job_result_detail, args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['url'], "http://jenkins.com/1")
+
+    def test_create_test_result(self):
+        self.create_product()
+        self.client.post(reverse(job_result_list),
+                         {"product": 1,
+                          "ip": "127.0.0.1",
+                          "url": "http://jenkins.com/1"})
+        self.client.post(reverse(test_id_list),
+                         {"name": "TEST_ID 1",
+                          "url": "http://bz.com/1"})
+        response = self.client.post(reverse(test_result_list),
+                                    {"job": 1,
+                                     "test": 1,
+                                     "result": True})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('id', response.data)
+        response = self.client.get(reverse(test_result_detail, args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['result'], True)
