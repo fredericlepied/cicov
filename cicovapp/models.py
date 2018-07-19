@@ -24,7 +24,6 @@ class RFE(models.Model):
 
 class TestId(models.Model):
     name = models.CharField(max_length=100)
-    url = models.URLField()
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -35,7 +34,6 @@ class JobResult(models.Model):
     product = models.ForeignKey(Product, models.CASCADE)
     url = models.URLField()
     created = models.DateTimeField(auto_now_add=True)
-    ip = models.GenericIPAddressField()
 
     class Meta:
         ordering = ('created',)

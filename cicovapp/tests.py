@@ -1,3 +1,5 @@
+from os.path import dirname, join
+
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -9,7 +11,8 @@ from cicovapp.views import (product_list, product_detail,
                             rfe_list, rfe_detail,
                             test_id_list, test_id_detail,
                             job_result_list, job_result_detail,
-                            test_result_list, test_result_detail)
+                            test_result_list, test_result_detail,
+                            FileUploadView)
 
 
 class SerializationTests(TestCase):
@@ -83,7 +86,6 @@ class ApiTests(APITestCase):
         response = self.create_product()
         response = self.client.post(reverse(job_result_list),
                                     {"product": response.data['id'],
-                                     "ip": "127.0.0.1",
                                      "url": "http://jenkins.com/1"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('id', response.data)
@@ -95,7 +97,6 @@ class ApiTests(APITestCase):
         self.create_product()
         self.client.post(reverse(job_result_list),
                          {"product": 1,
-                          "ip": "127.0.0.1",
                           "url": "http://jenkins.com/1"})
         self.client.post(reverse(test_id_list),
                          {"name": "TEST_ID 1",
@@ -109,3 +110,12 @@ class ApiTests(APITestCase):
         response = self.client.get(reverse(test_result_detail, args=[1]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['result'], True)
+
+    def test_upload(self):
+        xmlfile = open(join(dirname(__file__), 'tempest-results-full.1.xml'))
+        self.create_product()
+        response = self.client.post("/upload/",
+                                    {"product": "OSP",
+                                     "url": "http://bz.com/1",
+                                     "file": xmlfile}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

@@ -14,12 +14,12 @@ class RFESerializer(serializers.ModelSerializer):
 class TestIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestId
-        fields = ('id', 'created', 'name', 'url')
+        fields = ('id', 'created', 'name')
 
 class JobResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobResult
-        fields = ('id', 'created', 'product', 'url', 'ip')
+        fields = ('id', 'created', 'product', 'url')
 
 class TestResultSerializer(serializers.ModelSerializer):
     class Meta:

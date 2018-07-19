@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^job_result/(?P<pk>[0-9]+)/$', views.job_result_detail),
     url(r'^test_results/$', views.test_result_list),
     url(r'^test_result/(?P<pk>[0-9]+)/$', views.test_result_detail),
+    url(r'^upload/$', views.FileUploadView.as_view()),
 ]

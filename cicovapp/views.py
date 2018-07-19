@@ -1,6 +1,11 @@
+from django.shortcuts import get_object_or_404
+from junitparser import JUnitXml
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from cicovapp.models import Product, RFE, TestId, JobResult, TestResult
 from cicovapp.serializers import (ProductSerializer, RFESerializer,
                                   TestIdSerializer, JobResultSerializer,
@@ -225,3 +230,43 @@ def test_result_detail(request, pk):
     elif request.method == 'DELETE':
         test_result.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def testname(testcase):
+    idx = testcase.name.find('[')
+    if idx != -1:
+        return testcase.classname + '.' + testcase.name[:idx]
+    else:
+        return testcase.classname + '.' + testcase.name
+
+
+def teststatus(testcase):
+    if testcase.result is None:
+        return "success"
+    else:
+        return testcase.result._elem.tag
+
+
+class FileUploadView(APIView):
+    parser_classes = (FormParser, MultiPartParser,)
+
+    def post(self, request):
+        for key in ('url', 'product', 'file'):
+            if key not in request.data:
+                return Response(status=400)
+        product = get_object_or_404(Product, name=request.data['product'])
+        job_result = JobResult(product=product, url=request.data['url'])
+        job_result.save()
+        for file_ in request.data.pop('file'):
+            xml = JUnitXml.fromfile(file_)
+            for suite in xml:
+                if suite.classname != '' and teststatus(suite) != 'skipped':
+                    test_id = TestId.objects.get_or_create(
+                        name=testname(suite))[0]
+                    test_id.save()
+                    test_result = TestResult(
+                        job=job_result,
+                        test=test_id,
+                        result=(teststatus(suite) == 'success'))
+                    test_result.save()
+        return Response(status=201)
