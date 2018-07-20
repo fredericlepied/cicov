@@ -11,24 +11,22 @@ from cicovapp.views import (product_list, product_detail,
                             rfe_list, rfe_detail,
                             test_id_list, test_id_detail,
                             job_result_list, job_result_detail,
-                            test_result_list, test_result_detail,
-                            FileUploadView)
+                            test_result_list, test_result_detail)
 
 
 class SerializationTests(TestCase):
     def test_serialization(self):
-        p = Product(name="OSP", version="10", url="http://redhat.com/")
+        p = Product(name="OSP10", url="http://redhat.com/")
         p.save()
         s = ProductSerializer(p)
-        self.assertEqual(len(s.data.keys()), 6, s.data)
+        self.assertEqual(len(s.data.keys()), 5, s.data)
 
 
 class ApiTests(APITestCase):
     def setUp(self):
         self.p1 = {
-            "name": "OSP",
+            "name": "OSP10",
             "url": "http://redhat.com/",
-            "version": "10"
         }
         self.create_url = reverse(product_list)
         self.list_url = self.create_url
@@ -45,7 +43,7 @@ class ApiTests(APITestCase):
     def test_create_product_inherited(self):
         response = self.create_product()
         self.p1['inherit'] = response.data['id']
-        self.p1["version"] = "11"
+        self.p1["product"] = "OSP11"
         response = self.create_product()
         self.assertNotEqual(response.data['id'], self.p1['inherit'])
 
@@ -59,8 +57,8 @@ class ApiTests(APITestCase):
         detail_url = reverse(product_detail, args=[1])
         response = self.client.get(detail_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('version', response.data, response)
-        self.assertEqual(response.data['version'], "10")
+        self.assertIn('name', response.data, response)
+        self.assertEqual(response.data['name'], "OSP10")
 
     def test_create_rfe(self):
         response = self.client.post(reverse(rfe_list),
@@ -115,7 +113,7 @@ class ApiTests(APITestCase):
         xmlfile = open(join(dirname(__file__), 'tempest-results-full.1.xml'))
         self.create_product()
         response = self.client.post("/upload/",
-                                    {"product": "OSP",
+                                    {"product": "OSP10",
                                      "url": "http://bz.com/1",
                                      "file": xmlfile}, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

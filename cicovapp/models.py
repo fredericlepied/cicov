@@ -4,7 +4,6 @@ from django.db import models
 class Product(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=100)
-    version = models.CharField(max_length=20)
     inherit = models.ForeignKey('self', models.SET_NULL, blank=True, null=True)
     url = models.URLField()
 
