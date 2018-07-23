@@ -23,7 +23,7 @@ class TestIdSerializer(serializers.ModelSerializer):
 class JobResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobResult
-        fields = ('id', 'created', 'product', 'url')
+        fields = ('id', 'created', 'product', 'build', 'url')
 
 
 class TestResultSerializer(serializers.ModelSerializer):

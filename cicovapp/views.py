@@ -251,11 +251,12 @@ class FileUploadView(APIView):
     parser_classes = (FormParser, MultiPartParser,)
 
     def post(self, request):
-        for key in ('url', 'product', 'file'):
+        for key in ('url', 'product', 'file', 'build'):
             if key not in request.data:
                 return Response(status=400)
         product = get_object_or_404(Product, name=request.data['product'])
-        job_result = JobResult(product=product, url=request.data['url'])
+        job_result = JobResult(product=product, url=request.data['url'],
+                               build=request.data['build'])
         job_result.save()
         for file_ in request.data.pop('file'):
             xml = JUnitXml.fromfile(file_)

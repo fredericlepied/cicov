@@ -33,6 +33,7 @@ class JobResult(models.Model):
     product = models.ForeignKey(Product, models.CASCADE)
     url = models.URLField()
     created = models.DateTimeField(auto_now_add=True)
+    build = models.CharField(max_length=100)
 
     class Meta:
         ordering = ('created',)

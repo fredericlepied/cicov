@@ -84,6 +84,7 @@ class ApiTests(APITestCase):
         response = self.create_product()
         response = self.client.post(reverse(job_result_list),
                                     {"product": response.data['id'],
+                                     "build": "2018-06-20.1",
                                      "url": "http://jenkins.com/1"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('id', response.data)
@@ -95,6 +96,7 @@ class ApiTests(APITestCase):
         self.create_product()
         self.client.post(reverse(job_result_list),
                          {"product": 1,
+                          "build": "2018-06-20.1",
                           "url": "http://jenkins.com/1"})
         self.client.post(reverse(test_id_list),
                          {"name": "TEST_ID 1",
@@ -115,5 +117,6 @@ class ApiTests(APITestCase):
         response = self.client.post("/upload/",
                                     {"product": "OSP10",
                                      "url": "http://bz.com/1",
+                                     "build": "2018-06-20.1",
                                      "file": xmlfile}, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
