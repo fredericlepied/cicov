@@ -11,7 +11,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class RFESerializer(serializers.ModelSerializer):
     class Meta:
         model = RFE
-        fields = ('id', 'created', 'title', 'url')
+        fields = ('id', 'created', 'name', 'product', 'url')
 
 
 class TestIdSerializer(serializers.ModelSerializer):

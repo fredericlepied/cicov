@@ -61,14 +61,16 @@ class ApiTests(APITestCase):
         self.assertEqual(response.data['name'], "OSP10")
 
     def test_create_rfe(self):
+        self.create_product()
         response = self.client.post(reverse(rfe_list),
-                                    {"title": "RFE 1",
+                                    {"name": "RFE 1",
+                                     "product": 1,
                                      "url": "http://bz.com/1"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('id', response.data)
         response = self.client.get(reverse(rfe_detail, args=[1]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['title'], "RFE 1")
+        self.assertEqual(response.data['name'], "RFE 1")
 
     def test_create_test_id(self):
         response = self.client.post(reverse(test_id_list),

@@ -12,7 +12,8 @@ class Product(models.Model):
 
 
 class RFE(models.Model):
-    title = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    product = models.ForeignKey(Product, models.CASCADE)
     url = models.URLField()
     created = models.DateTimeField(auto_now_add=True)
     testid = models.ManyToManyField('TestId')
