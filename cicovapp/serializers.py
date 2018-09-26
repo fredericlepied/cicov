@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from cicovapp.models import Product, RFE, TestId, JobResult, TestResult
+from cicovapp.models import Product, RFE, TestId, JobResult, TestResult, RFEResult
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -11,7 +11,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class RFESerializer(serializers.ModelSerializer):
     class Meta:
         model = RFE
-        fields = ('id', 'created', 'name', 'product', 'url')
+        fields = ('id', 'created', 'name', 'product', 'url', 'testid')
 
 
 class TestIdSerializer(serializers.ModelSerializer):
@@ -30,3 +30,9 @@ class TestResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestResult
         fields = ('id', 'created', 'job', 'test', 'result')
+
+
+class RfeResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RFEResult
+        fields = ('id', 'created', 'job', 'percent', 'result')

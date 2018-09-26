@@ -23,7 +23,7 @@ class RFE(models.Model):
 
 
 class TestId(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -44,6 +44,17 @@ class TestResult(models.Model):
     job = models.ForeignKey(JobResult, models.CASCADE)
     test = models.ForeignKey(TestId, models.CASCADE)
     result = models.BooleanField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('created',)
+
+
+class RFEResult(models.Model):
+    job = models.ForeignKey(JobResult, models.CASCADE)
+    rfe = models.ForeignKey(RFE, models.CASCADE)
+    result = models.BooleanField()
+    percent = models.FloatField()
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

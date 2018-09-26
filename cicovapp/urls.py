@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^test_results/$', views.test_result_list),
     url(r'^test_result/(?P<pk>[0-9]+)/$', views.test_result_detail),
     url(r'^upload/$', views.FileUploadView.as_view()),
+    url(r'^rfe_results/$', views.rfe_result_list),
+    url(r'^rfe_result/(?P<pk>[0-9]+)/$', views.rfe_result_detail),
 ]

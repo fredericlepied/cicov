@@ -6,10 +6,11 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from cicovapp.models import Product, RFE, TestId, JobResult, TestResult
+from cicovapp.models import (Product, RFE, TestId, JobResult, TestResult,
+                             RFEResult)
 from cicovapp.serializers import (ProductSerializer, RFESerializer,
                                   TestIdSerializer, JobResultSerializer,
-                                  TestResultSerializer)
+                                  TestResultSerializer, RfeResultSerializer)
 
 
 @api_view(['GET', 'POST'])
@@ -270,4 +271,61 @@ class FileUploadView(APIView):
                         test=test_id,
                         result=(teststatus(suite) == 'success'))
                     test_result.save()
-        return Response(status=201)
+        for rfe in RFE.objects.filter(product=product):
+            testids = rfe.testid.all()
+            count = 0
+            success = 0
+            for testid in testids:
+                try:
+                    test_result = TestResult.objects.get(job=job_result,
+                                                         test=testid)
+                    if test_result.result:
+                        success += 1
+                    count += 1
+                except TestResult.DoesNotExist:
+                    pass
+            rfe_result = RFEResult(job=job_result, rfe=rfe,
+                                   result=(testids.count() == success),
+                                   percent=(success / count
+                                            if (count != 0 and
+                                                testids.count() == count)
+                                            else 0)
+                                   )
+            rfe_result.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def rfe_result_list(request):
+    """
+    List all rfe results.
+    """
+    rfes = RFEResult.objects.all()
+    serializer = RfeResultSerializer(rfes, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def rfe_result_detail(request, pk):
+    """
+    Retrieve, update or delete a rfe result.
+    """
+    try:
+        RfeResult = RFEResult.objects.get(pk=pk)
+    except RFEResult.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = RfeResultSerializer(RfeResult)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = RfeResultSerializer(RfeResult, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        RFEResult.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
