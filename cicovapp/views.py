@@ -256,6 +256,9 @@ class FileUploadView(APIView):
             if key not in request.data:
                 return Response(status=400)
         product = get_object_or_404(Product, name=request.data['product'])
+        print('Ingesting %s %s from %s' % (request.data['product'], request.data['build'], request.data['url']))
+        JobResult.objects.filter(product=product, url=request.data['url'],
+                                 build=request.data['build']).delete()
         job_result = JobResult(product=product, url=request.data['url'],
                                build=request.data['build'])
         job_result.save()
@@ -271,6 +274,18 @@ class FileUploadView(APIView):
                         test=test_id,
                         result=(teststatus(suite) == 'success'))
                     test_result.save()
+        # use a special test id for config settings
+        if 'config' in request.data:
+            for cfg in request.data.pop('config'):
+                test_id = TestId.objects.get_or_create(
+                    name='config.' + cfg)[0]
+                test_id.save()
+                test_result = TestResult(
+                    job=job_result,
+                    test=test_id,
+                    result=True)
+                test_result.save()
+                print(test_result.test.name)
         for rfe in RFE.objects.filter(product=product):
             testids = rfe.testid.all()
             count = 0
@@ -285,7 +300,8 @@ class FileUploadView(APIView):
                 except TestResult.DoesNotExist:
                     pass
             rfe_result = RFEResult(job=job_result, rfe=rfe,
-                                   result=(testids.count() == success),
+                                   result=(success != 0 and
+                                           testids.count() == success),
                                    percent=(success / count
                                             if (count != 0 and
                                                 testids.count() == count)

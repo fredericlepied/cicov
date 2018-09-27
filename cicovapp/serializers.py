@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from cicovapp.models import Product, RFE, TestId, JobResult, TestResult, RFEResult
+from cicovapp.models import (Product, RFE, TestId, JobResult, TestResult,
+                             RFEResult)
 
 
 class ProductSerializer(serializers.ModelSerializer):

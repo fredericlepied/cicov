@@ -16,7 +16,7 @@ class RFE(models.Model):
     product = models.ForeignKey(Product, models.CASCADE)
     url = models.URLField()
     created = models.DateTimeField(auto_now_add=True)
-    testid = models.ManyToManyField('TestId')
+    testid = models.ManyToManyField('TestId', blank=True)
 
     class Meta:
         ordering = ('created',)
