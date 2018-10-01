@@ -114,7 +114,11 @@ def test_id_list(request):
     elif request.method == 'POST':
         serializer = TestIdSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            try:
+                test_id = TestId.objects.get(name=serializer.validated_data['name'])
+                serializer = TestIdSerializer(test_id)
+            except TestId.DoesNotExist:
+                serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

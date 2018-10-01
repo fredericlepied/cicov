@@ -99,6 +99,12 @@ class ApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], "TEST_ID 1")
 
+    def test_create_test_id_unique(self):
+        res = self.create_test_id()
+        id = res.data['id']
+        res = self.create_test_id()
+        self.assertEquals(res.data['id'], id)
+
     def test_create_job_result(self):
         response = self.create_product()
         response = self.client.post(reverse(job_result_list),
