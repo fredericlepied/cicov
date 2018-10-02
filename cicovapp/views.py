@@ -290,28 +290,30 @@ class FileUploadView(APIView):
                     result=True)
                 test_result.save()
                 print(test_result.test.name)
-        for rfe in RFE.objects.filter(product=product):
-            testids = rfe.testid.all()
-            count = 0
-            success = 0
-            for testid in testids:
-                try:
-                    test_result = TestResult.objects.get(job=job_result,
-                                                         test=testid)
-                    if test_result.result:
-                        success += 1
-                    count += 1
-                except TestResult.DoesNotExist:
-                    pass
-            rfe_result = RFEResult(job=job_result, rfe=rfe,
-                                   result=(success != 0 and
-                                           testids.count() == success),
-                                   percent=(success / count
-                                            if (count != 0 and
-                                                testids.count() == count)
-                                            else 0)
-                                   )
-            rfe_result.save()
+        while product:
+            for rfe in RFE.objects.filter(product=product):
+                testids = rfe.testid.all()
+                count = 0
+                success = 0
+                for testid in testids:
+                    try:
+                        test_result = TestResult.objects.get(job=job_result,
+                                                             test=testid)
+                        if test_result.result:
+                            success += 1
+                        count += 1
+                    except TestResult.DoesNotExist:
+                        pass
+                rfe_result = RFEResult(job=job_result, rfe=rfe,
+                                       result=(success != 0 and
+                                               testids.count() == success),
+                                       percent=(success / count
+                                                if (count != 0 and
+                                                    testids.count() == count)
+                                                else 0)
+                                       )
+                rfe_result.save()
+            product = product.inherit
         return Response(status=status.HTTP_201_CREATED)
 
 
