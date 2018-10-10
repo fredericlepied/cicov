@@ -13,7 +13,7 @@ class Product(models.Model):
 
 class RFE(models.Model):
     name = models.CharField(max_length=100)
-    product = models.ForeignKey(Product, models.CASCADE)
+    product = models.ForeignKey(Product, models.CASCADE, related_name='rfes')
     url = models.URLField()
     created = models.DateTimeField(auto_now_add=True)
     testid = models.ManyToManyField('TestId', blank=True)
@@ -31,7 +31,8 @@ class TestId(models.Model):
 
 
 class JobResult(models.Model):
-    product = models.ForeignKey(Product, models.CASCADE)
+    product = models.ForeignKey(Product, models.CASCADE,
+                                related_name='job_results')
     url = models.URLField()
     created = models.DateTimeField(auto_now_add=True)
     build = models.CharField(max_length=100)
@@ -41,7 +42,8 @@ class JobResult(models.Model):
 
 
 class TestResult(models.Model):
-    job = models.ForeignKey(JobResult, models.CASCADE)
+    job = models.ForeignKey(JobResult, models.CASCADE,
+                            related_name='test_results')
     test = models.ForeignKey(TestId, models.CASCADE)
     result = models.BooleanField()
     created = models.DateTimeField(auto_now_add=True)
@@ -51,7 +53,8 @@ class TestResult(models.Model):
 
 
 class RFEResult(models.Model):
-    job = models.ForeignKey(JobResult, models.CASCADE)
+    job = models.ForeignKey(JobResult, models.CASCADE,
+                            related_name='rfe_results')
     rfe = models.ForeignKey(RFE, models.CASCADE)
     result = models.BooleanField()
     percent = models.FloatField()

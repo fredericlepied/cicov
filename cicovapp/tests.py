@@ -21,7 +21,7 @@ class SerializationTests(TestCase):
         p = Product(name=PRODUCT, url="http://redhat.com/")
         p.save()
         s = ProductSerializer(p)
-        self.assertEqual(len(s.data.keys()), 5, s.data)
+        self.assertEqual(len(s.data.keys()), 7, s.data)
 
 
 class ApiTests(APITestCase):
