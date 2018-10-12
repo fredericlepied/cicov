@@ -6,7 +6,16 @@ from cicovapp.models import (Product, RFE, TestId, JobResult, TestResult,
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ('id', 'created', 'name', 'inherit', 'url', 'rfes', 'job_results')
+        fields = ('id', 'created', 'name', 'inherit', 'url', 'rfes',
+                  'job_results')
+
+
+class DetailedProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ('id', 'created', 'name', 'inherit', 'url', 'rfes',
+                  'job_results')
+        depth = 2
 
 
 class RFESerializer(serializers.ModelSerializer):
@@ -24,7 +33,7 @@ class TestIdSerializer(serializers.ModelSerializer):
 class JobResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobResult
-        fields = ('id', 'created', 'product', 'build', 'url')
+        fields = ('id', 'created', 'product', 'build', 'url', 'rfe_results')
 
 
 class TestResultSerializer(serializers.ModelSerializer):
@@ -36,4 +45,4 @@ class TestResultSerializer(serializers.ModelSerializer):
 class RfeResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = RFEResult
-        fields = ('id', 'created', 'job', 'percent', 'result')
+        fields = ('id', 'rfe', 'created', 'job', 'percent', 'result')

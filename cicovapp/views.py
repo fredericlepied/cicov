@@ -10,7 +10,16 @@ from cicovapp.models import (Product, RFE, TestId, JobResult, TestResult,
                              RFEResult)
 from cicovapp.serializers import (ProductSerializer, RFESerializer,
                                   TestIdSerializer, JobResultSerializer,
-                                  TestResultSerializer, RfeResultSerializer)
+                                  TestResultSerializer, RfeResultSerializer,
+                                  DetailedProductSerializer)
+
+
+def process_params(params):
+    "value of params is returned as list so take the first element"
+    ret = {}
+    for key in params:
+        ret[key] = params[key][0]
+    return ret
 
 
 @api_view(['GET', 'POST'])
@@ -19,7 +28,11 @@ def product_list(request):
     List all code products, or create a new product.
     """
     if request.method == 'GET':
-        products = Product.objects.all()
+        if request.query_params == {}:
+            products = Product.objects.all()
+        else:
+            params = process_params(request.query_params)
+            products = Product.objects.filter(**params)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
@@ -42,7 +55,7 @@ def product_detail(request, pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = ProductSerializer(product)
+        serializer = DetailedProductSerializer(product)
         return Response(serializer.data)
 
     elif request.method == 'PUT':
@@ -63,7 +76,11 @@ def rfe_list(request):
     List all code rfes, or create a new rfe.
     """
     if request.method == 'GET':
-        rfes = RFE.objects.all()
+        if request.query_params == {}:
+            rfes = RFE.objects.all()
+        else:
+            params = process_params(request.query_params)
+            rfes = RFE.objects.all(**params)
         serializer = RFESerializer(rfes, many=True)
         return Response(serializer.data)
 
@@ -107,7 +124,11 @@ def test_id_list(request):
     List all code TestIds, or create a new TestId.
     """
     if request.method == 'GET':
-        TestIds = TestId.objects.all()
+        if request.query_params == {}:
+            TestIds = TestId.objects.all()
+        else:
+            params = process_params(request.query_params)
+            TestIds = TestId.objects.filter(**params)
         serializer = TestIdSerializer(TestIds, many=True)
         return Response(serializer.data)
 
@@ -155,7 +176,11 @@ def job_result_list(request):
     List all code job_results, or create a new job_result.
     """
     if request.method == 'GET':
-        job_results = JobResult .objects.all()
+        if request.query_params == {}:
+            job_results = JobResult.objects.all()
+        else:
+            params = process_params(request.query_params)
+            job_results = JobResult.objects.filter(**params)
         serializer = JobResultSerializer(job_results, many=True)
         return Response(serializer.data)
 
@@ -199,7 +224,11 @@ def test_result_list(request):
     List all code test_results, or create a new test_result.
     """
     if request.method == 'GET':
-        test_results = TestResult .objects.all()
+        if request.query_params == {}:
+            test_results = TestResult.objects.all()
+        else:
+            params = process_params(request.query_params)
+            test_results = TestResult.objects.filter(**params)
         serializer = TestResultSerializer(test_results, many=True)
         return Response(serializer.data)
 
@@ -322,7 +351,11 @@ def rfe_result_list(request):
     """
     List all rfe results.
     """
-    rfes = RFEResult.objects.all()
+    if request.query_params == {}:
+        rfes = RFEResult.objects.all()
+    else:
+        params = process_params(request.query_params)
+        rfes = RFEResult.objects.filter(**params)
     serializer = RfeResultSerializer(rfes, many=True)
     return Response(serializer.data)
 
