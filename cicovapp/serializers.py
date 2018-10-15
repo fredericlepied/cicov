@@ -15,7 +15,6 @@ class DetailedProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ('id', 'created', 'name', 'inherit', 'url', 'rfes',
                   'job_results')
-        depth = 2
 
 
 class RFESerializer(serializers.ModelSerializer):
