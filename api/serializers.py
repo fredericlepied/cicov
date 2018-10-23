@@ -9,10 +9,19 @@ class RFESerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class RFEResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RFEResult
+        fields = "__all__"
+
+
 class JobResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.JobResult
         fields = "__all__"
+
+    rfe_results = RFEResultSerializer(read_only=True, many=True)
+
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,4 +36,3 @@ class TestSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Test
         fields = "__all__"
-

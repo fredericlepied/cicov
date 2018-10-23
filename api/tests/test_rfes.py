@@ -30,17 +30,21 @@ class RFETestCase(APITestCase):
         test2 = factories.TestFactory(name="test id 2")
         self.assertEqual(0, models.RFE.objects.count())
 
+        data = {
+            "name": "p1",
+            "url": "https://example.org/rfes/1",
+            "product": product.id,
+            "tests": [test1.id, test2.id],
+        }
         request = self.client.post(
             "/api/rfes",
-            {
-                "name": "p1",
-                "url": "https://example.org/rfes/1",
-                "product": product.id,
-                "test": [test1.id, test2.id],
-            },
+            data,
         )
         self.assertEqual(201, request.status_code)
         self.assertEqual(1, models.RFE.objects.count())
+        for key in data:
+            self.assertIn(key, request.data)
+            self.assertEqual(data[key], request.data[key])
 
     def test_get_no_rfes(self):
         request = self.client.get("/api/rfes")

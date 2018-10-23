@@ -30,7 +30,8 @@ class RFE(Base):
 class JobResult(Base):
     url = models.URLField()
     build = models.CharField(max_length=100)
-    product = models.ForeignKey(Product, models.CASCADE, related_name="job_results")
+    product = models.ForeignKey(Product, models.CASCADE,
+                                related_name="job_results")
 
 
 class TestResult(Base):
