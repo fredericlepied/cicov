@@ -22,15 +22,24 @@ class FileUploadView(viewsets.ViewSet):
     parser_classes = (parsers.FormParser, parsers.MultiPartParser)
 
     def create(self, request):
-        for key in ("url", "product", "file", "build"):
+        for key in ("url", "product", "file", "build", "result"):
             if key not in request.data:
                 return response.Response(status=400)
         product = shortcuts.get_object_or_404(
             models.Product, id=request.data["product"]
         )
-        job_result, _ = models.JobResult.objects.get_or_create(
-            product=product, url=request.data["url"], build=request.data["build"]
-        )
+        try:
+            job_result = models.JobResult.objects.get(
+                product=product, url=request.data["url"],
+                build=request.data["build"]
+            )
+        except models.JobResult.DoesNotExist:
+            job_result = models.JobResult(
+                product=product, url=request.data["url"],
+                build=request.data["build"],
+                result=request.data["result"]
+            )
+            job_result.save()
         test_results = []
         for test in junit_parser.parse_tests(request.data["file"]):
             test_id, _ = models.Test.objects.get_or_create(name=test["name"])

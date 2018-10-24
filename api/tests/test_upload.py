@@ -22,6 +22,7 @@ class UploadTestCase(APITestCase):
                 "url": "https://example.org/jobs/1",
                 "build": "2018-06-20.1",
                 "file": xmlfile,
+                "result": "SUCCESS",
             },
             format="multipart",
         )

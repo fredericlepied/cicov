@@ -32,6 +32,7 @@ class JobResult(Base):
     build = models.CharField(max_length=100)
     product = models.ForeignKey(Product, models.CASCADE,
                                 related_name="job_results")
+    result = models.CharField(max_length=100)
 
 
 class TestResult(Base):
