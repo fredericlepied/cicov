@@ -1,6 +1,7 @@
 from django import shortcuts
 from rest_framework import viewsets, parsers, response, status
 from api import models, serializers, junit_parser, stats
+from url_filter.integrations.drf import DjangoFilterBackend
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -16,6 +17,8 @@ class RFEViewSet(viewsets.ModelViewSet):
 class TestViewSet(viewsets.ModelViewSet):
     queryset = models.Test.objects.all()
     serializer_class = serializers.TestSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['id']
 
 
 class FileUploadView(viewsets.ViewSet):

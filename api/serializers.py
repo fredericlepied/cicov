@@ -36,10 +36,16 @@ class JobResultSerializer(serializers.ModelSerializer):
     rfe_results = RFEResultSerializer(read_only=True, many=True)
 
 
+class SimpleRFESerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RFE
+        fields = ('id',)
+
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Product
         fields = "__all__"
 
-    rfes = RFESerializer(read_only=True, many=True)
+    rfes = SimpleRFESerializer(read_only=True, many=True)
     job_results = JobResultSerializer(read_only=True, many=True)

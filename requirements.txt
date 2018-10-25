@@ -5,3 +5,4 @@ future==0.16.0
 junitparser==1.2.2
 pytz==2018.4
 drf-extensions==0.4.0
+django-url-filter==0.3.8
