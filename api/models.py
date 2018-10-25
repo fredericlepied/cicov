@@ -29,6 +29,7 @@ class RFE(Base):
 
 class JobResult(Base):
     url = models.URLField()
+    jobname = models.CharField(max_length=100)
     build = models.CharField(max_length=100)
     product = models.ForeignKey(Product, models.CASCADE,
                                 related_name="job_results")

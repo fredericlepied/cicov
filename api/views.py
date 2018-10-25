@@ -25,33 +25,47 @@ class FileUploadView(viewsets.ViewSet):
     parser_classes = (parsers.FormParser, parsers.MultiPartParser)
 
     def create(self, request):
-        for key in ("url", "product", "file", "build", "result"):
+        for key in ("url", "product", "build", "result"):
             if key not in request.data:
                 return response.Response(status=400)
         product = shortcuts.get_object_or_404(
             models.Product, id=request.data["product"]
         )
+        if "jobname" in request.data:
+            jobname = request.data["jobname"]
+        else:
+            # extract the job name from the URL:
+            # http://<server>/<path>/<jobname>/<jobid>/
+            parts = request.data["url"].split("/")
+            if parts[-1] == "":
+                jobname = parts[-3]
+            else:
+                jobname = parts[-2]
         try:
             job_result = models.JobResult.objects.get(
                 product=product, url=request.data["url"],
-                build=request.data["build"]
+                build=request.data["build"],
+                jobname=jobname
             )
         except models.JobResult.DoesNotExist:
             job_result = models.JobResult(
                 product=product, url=request.data["url"],
                 build=request.data["build"],
-                result=request.data["result"]
+                result=request.data["result"],
+                jobname=jobname
             )
             job_result.save()
         test_results = []
-        for test in junit_parser.parse_tests(request.data["file"]):
-            test_id, _ = models.Test.objects.get_or_create(name=test["name"])
-            test_result, _ = models.TestResult.objects.get_or_create(
-                job_result=job_result,
-                test=test_id,
-                result=(test["status"] == "success"),
-            )
-            test_results.append({"test": test_id.id, "result": test_result.result})
+        if "file" in request.data:
+            for test in junit_parser.parse_tests(request.data["file"]):
+                test_id, _ = models.Test.objects.get_or_create(name=test["name"])
+                test_result, _ = models.TestResult.objects.get_or_create(
+                    job_result=job_result,
+                    test=test_id,
+                    result=(test["status"] == "success"),
+                )
+                test_results.append({"test": test_id.id,
+                                     "result": test_result.result})
 
         while product:
             for rfe in models.RFE.objects.filter(product=product):
