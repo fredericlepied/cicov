@@ -1,3 +1,4 @@
+from django.conf.urls import url
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 
 from api import views
@@ -9,4 +10,8 @@ router.register("tests", views.TestViewSet, base_name="test_id")
 router.register("job_results", views.JobResultViewSet, base_name="job_result")
 router.register("upload", views.FileUploadView, base_name="file_upload")
 
-urlpatterns = router.urls
+urlpatterns = [
+    url(r'^view/products$', views.view_products),
+]
+
+urlpatterns += router.urls

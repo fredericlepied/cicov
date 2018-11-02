@@ -76,3 +76,8 @@ class ProductTestCase(APITestCase):
         request = self.client.delete("/api/products/%s" % product.id)
         self.assertEqual(204, request.status_code)
         self.assertEqual(0, models.Product.objects.all().count())
+
+    def test_view_products(self):
+        product = factories.ProductFactory()
+        request = self.client.get("/api/view/products")
+        self.assertEqual(product.name, request.data[0]['name'])
