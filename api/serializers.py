@@ -39,7 +39,7 @@ class JobResultSerializer(serializers.ModelSerializer):
 class SimpleRFESerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RFE
-        fields = ("id", "name", "product_id", "result")
+        fields = ("id", "name", "url", "product_id", "result")
 
     product_id = serializers.PrimaryKeyRelatedField(source="product.id", read_only=True)
     result = serializers.SerializerMethodField()
