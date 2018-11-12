@@ -37,11 +37,20 @@ class JobResultSerializer(serializers.ModelSerializer):
 
 
 class SimpleRFESerializer(serializers.ModelSerializer):
-    product_id = serializers.PrimaryKeyRelatedField(source="product.id", read_only=True)
-
     class Meta:
         model = models.RFE
-        fields = ("id", "name", "product_id")
+        fields = ("id", "name", "product_id", "result")
+
+    product_id = serializers.PrimaryKeyRelatedField(source="product.id", read_only=True)
+    result = serializers.SerializerMethodField()
+
+    def get_result(self, rfe):
+        latest_job_result = self.context["latest_job_result"]
+        result = models.RFEResult.objects.filter(job_result=latest_job_result, rfe=rfe)
+        if len(result):
+            serializer = RFEResultSerializer(result[0])
+            return serializer.data
+        return None
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
@@ -57,9 +66,15 @@ class ProductSerializer(serializers.ModelSerializer):
 
     rfes = serializers.SerializerMethodField()
 
-    def get_rfes(self, obj):
-        rfes = models.RFE.objects.filter(product__in=self.get_parent_products(obj))
-        serializer = SimpleRFESerializer(rfes, many=True)
+    def get_rfes(self, product):
+        job_result = models.JobResult.objects.filter(product=product)
+        latest_job_result = None
+        if job_result:
+            latest_job_result = job_result.latest("created")
+        rfes = models.RFE.objects.filter(product__in=self.get_parent_products(product))
+        serializer = SimpleRFESerializer(
+            rfes, many=True, context={"latest_job_result": latest_job_result}
+        )
         return serializer.data
 
     def get_parent_products(self, product):
