@@ -45,6 +45,7 @@ class TestResult(Base):
 
 
 class RFEResult(Base):
+    tested = models.BooleanField()
     result = models.BooleanField()
     percent = models.FloatField()
     rfe = models.ForeignKey(RFE, models.CASCADE)

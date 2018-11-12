@@ -96,7 +96,9 @@ class RFETestCase(APITestCase):
         ]
         tests = [{"id": 1}, {"id": 2}, {"id": 3}]
         self.assertDictEqual(
-            get_rfes_stats(tests, test_results), {"count": 3, "percent": 66.67, "result": False}
+            get_rfes_stats(tests, test_results), {"count": 3, "percent": 66.67,
+                                                  "result": False,
+                                                  "tested": True}
         )
 
     def test_rfe_stats_result_true_if_100_per_100(self):
@@ -107,5 +109,7 @@ class RFETestCase(APITestCase):
         ]
         tests = [{"id": 1}, {"id": 2}, {"id": 3}]
         self.assertDictEqual(
-            get_rfes_stats(tests, test_results), {"count": 3, "percent": 100.0, "result": True}
+            get_rfes_stats(tests, test_results), {"count": 3, "percent": 100.0,
+                                                  "result": True,
+                                                  "tested": True}
         )

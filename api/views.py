@@ -89,6 +89,7 @@ class FileUploadView(viewsets.ViewSet):
                 models.RFEResult.objects.update_or_create(
                     job_result=job_result,
                     rfe=rfe,
+                    tested=rfe_stats["tested"],
                     result=rfe_stats["result"],
                     percent=rfe_stats["percent"],
                 )
@@ -107,8 +108,6 @@ def view_products(request, format=None):
             last_build = builds[0]
         else:
             last_build = None
-        successful_rfes = 0
-        unsuccessful_rfes = 0
         rfe_results = {}
         for jr in product.job_results.filter(build=last_build):
             for rr in jr.rfe_results.all():
@@ -119,6 +118,9 @@ def view_products(request, format=None):
         )
         unsuccessful_rfes = sum(
             [1 if rfe_results[rfeid] is False else 0 for rfeid in rfe_results]
+        )
+        not_tested_rfes = sum(
+            [1 if rfe_results[rfeid] is None else 0 for rfeid in rfe_results]
         )
         content.append(
             {
@@ -134,6 +136,7 @@ def view_products(request, format=None):
                 ).count(),
                 "successful_rfes": successful_rfes,
                 "unsuccessful_rfes": unsuccessful_rfes,
+                "not_tested_rfes": not_tested_rfes,
                 "builds": builds,
             }
         )
