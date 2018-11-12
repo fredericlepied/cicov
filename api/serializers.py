@@ -64,8 +64,22 @@ class ProductSerializer(serializers.ModelSerializer):
         model = models.Product
         fields = "__all__"
 
-    job_results = JobResultSerializer(read_only=True, many=True)
+    job_results = serializers.SerializerMethodField()
     rfes = serializers.SerializerMethodField()
+
+    def get_job_results(self, product):
+        job_results = models.JobResult.objects.filter(product=product)
+        latest_job_result = None
+        if job_results:
+            latest_job_result = job_results.latest("created")
+            job_results = models.JobResult.objects.filter(
+                product=product,
+                build=latest_job_result.build
+            )
+        serializer = JobResultSerializer(
+            job_results, many=True
+        )
+        return serializer.data
 
     def get_rfes(self, product):
         job_result = models.JobResult.objects.filter(product=product)
