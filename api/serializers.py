@@ -64,6 +64,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = models.Product
         fields = "__all__"
 
+    job_results = JobResultSerializer(read_only=True, many=True)
     rfes = serializers.SerializerMethodField()
 
     def get_rfes(self, product):
@@ -71,7 +72,9 @@ class ProductSerializer(serializers.ModelSerializer):
         latest_job_result = None
         if job_result:
             latest_job_result = job_result.latest("created")
-        rfes = models.RFE.objects.filter(product__in=self.get_parent_products(product))
+        rfes = models.RFE.objects.filter(
+            product__in=self.get_parent_products(product)
+        )
         serializer = SimpleRFESerializer(
             rfes, many=True, context={"latest_job_result": latest_job_result}
         )
