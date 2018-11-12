@@ -36,13 +36,16 @@ class ProductTestCase(APITestCase):
         self.assertEqual(1, len(request.data))
         self.assertEqual(product.name, request.data[0]["name"])
 
-    def test_get_products_with_rfes_and_job_results(self):
-        product = factories.ProductFactory()
-        rfe = factories.RFEFactory(product=product)
-        job_result = factories.JobResultFactory(product=product)
-        request = self.client.get("/api/products")
-        self.assertEqual(rfe.id, request.data[0]["rfes"][0]["id"])
-        self.assertEqual(job_result.id, request.data[0]["job_results"][0]["id"])
+    def test_get_product_with_rfes_and_inheritance(self):
+        osp12 = factories.ProductFactory(name="OSP12")
+        osp13 = factories.ProductFactory(name="OSP13",inherit=osp12)
+        osp14 = factories.ProductFactory(name="OSP14", inherit=osp13)
+        rfe = factories.RFEFactory(product=osp12)
+
+        request = self.client.get("/api/products/%s" % osp14.id)
+        rfe_returned = request.data["rfes"][0]
+        self.assertEqual(rfe.id, rfe_returned["id"])
+        self.assertEqual(osp12.id, rfe_returned["product_id"])
 
     def test_get_product(self):
         product = factories.ProductFactory()
@@ -80,4 +83,4 @@ class ProductTestCase(APITestCase):
     def test_view_products(self):
         product = factories.ProductFactory()
         request = self.client.get("/api/view/products")
-        self.assertEqual(product.name, request.data[0]['name'])
+        self.assertEqual(product.name, request.data[0]["name"])
