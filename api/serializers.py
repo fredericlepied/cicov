@@ -37,12 +37,40 @@ class JobResultSerializer(serializers.ModelSerializer):
 
 
 class SimpleRFESerializer(serializers.ModelSerializer):
+    product_id = serializers.PrimaryKeyRelatedField(source="product.id", read_only=True)
+
     class Meta:
         model = models.RFE
-        fields = ('id',)
+        fields = ("id", "name", "product_id")
+
+
+class SimpleProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Product
+        fields = "__all__"
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Product
+        fields = "__all__"
+
+    rfes = serializers.SerializerMethodField()
+
+    def get_rfes(self, obj):
+        rfes = models.RFE.objects.filter(product__in=self.get_parent_products(obj))
+        serializer = SimpleRFESerializer(rfes, many=True)
+        return serializer.data
+
+    def get_parent_products(self, product):
+        products = []
+        products.append(product)
+        if product.inherit:
+            products.extend(self.get_parent_products(product.inherit))
+        return products
+
+
+class ProductsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Product
         fields = "__all__"
