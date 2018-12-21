@@ -62,6 +62,10 @@ class FileUploadView(viewsets.ViewSet):
                 build=request.data["build"],
                 jobname=jobname,
             )
+            # cleanup results because if we upload again it means
+            # something must have changed
+            models.TestResult.objects.filter(job_result=job_result).delete()
+            models.RFEResult.objects.filter(job_result=job_result).delete()
         except models.JobResult.DoesNotExist:
             job_result = models.JobResult(
                 product=product,
