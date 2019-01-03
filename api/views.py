@@ -113,7 +113,12 @@ def view_products(request, format=None):
         else:
             last_build = None
         rfe_results = {}
-        for jr in product.job_results.filter(build=last_build):
+        job_results = {}
+        # get the last job results for a particular jobname
+        for jr in product.job_results.filter(build=last_build).order_by('id'):
+            job_results[jr.jobname] = jr
+        print(len(job_results.values()))
+        for jr in job_results.values():
             for rr in jr.rfe_results.all():
                 if rr.rfe.id not in rfe_results or rr.result is True:
                     rfe_results[rr.rfe.id] = rr.result

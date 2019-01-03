@@ -77,9 +77,12 @@ class ProductSerializer(serializers.ModelSerializer):
             job_results = models.JobResult.objects.filter(
                 product=product,
                 build=latest_job_result.build
-            )
+            ).order_by('id')
+            order = {}
+            for jr in job_results:
+                order[jr.jobname] = jr
         serializer = JobResultSerializer(
-            job_results, many=True
+            order.values(), many=True
         )
         return serializer.data
 
