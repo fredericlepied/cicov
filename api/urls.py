@@ -12,6 +12,7 @@ router.register("upload", views.FileUploadView, base_name="file_upload")
 
 urlpatterns = [
     url(r'^view/products$', views.view_products),
+    url(r'^view/get_rfes/(?P<product>[a-zA-Z0-9]+)$', views.get_rfes),
 ]
 
 urlpatterns += router.urls

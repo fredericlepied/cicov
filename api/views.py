@@ -150,3 +150,10 @@ def view_products(request, format=None):
             }
         )
     return Response(content)
+
+
+@api_view(["GET"])
+def get_rfes(request, product, format=None):
+    content = [serializers.RFESerializer(rfe).data
+               for rfe in models.RFE.objects.filter(product__name=product)]
+    return Response(content)
