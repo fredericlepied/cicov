@@ -21,7 +21,7 @@ class Test(Base):
 
 
 class RFE(Base):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
     url = models.URLField()
     product = models.ForeignKey(Product, models.CASCADE, related_name="rfes")
     tests = models.ManyToManyField(Test, blank=True)
