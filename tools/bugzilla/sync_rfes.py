@@ -63,7 +63,6 @@ bzapi = bugzilla.Bugzilla(URL)
 
 query = bzapi.build_query(savedsearch=bz_savedsearch)
 
-# query() is what actually performs the query. it's a wrapper around Bug.search
 t1 = time.time()
 rfes = bzapi.query(query)
 t2 = time.time()
@@ -82,6 +81,10 @@ for rfe in rfes:
                            'product': product.id,
                            'tests': []
                            })
+    elif rfe.summary != cicov_rfes[url]['name']:
+        print('Updating %s: %s' % (rfe.id, rfe.summary))
+        r = requests.patch(CICOV_URL + '/rfes/%d' % cicov_rfes[url]['id'],
+                           {'name': rfe.summary})
 
 for url in cicov_rfes:
     if url not in bz_rfes:
