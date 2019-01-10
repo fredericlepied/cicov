@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #
 # Copyright (C) 2019 Red Hat, Inc. 
 #
@@ -20,12 +21,34 @@
 
 import json
 import requests
+import sys
 import time
 
 import bugzilla
 
+CICOV_URL = 'http://localhost:8000/api'
 
-r = requests.get('http://localhost:8000/api/view/get_rfes/OSP15')
+if len(sys.argv) != 3:
+    print('Usage: %s <product name> <bz saved search>' % sys.argv[0],
+          file=sys.stderr)
+    sys.exit(1)
+
+product_name = sys.argv[1]
+bz_savedsearch = sys.argv[2]
+
+r = requests.get(CICOV_URL + '/products')
+data = json.loads(r.text)
+
+for dat in data:
+    if dat['name'] == product_name:
+        product = dat
+        break
+else:
+    print('Unable to find %s on CICOV (%s)' % (product_name, CICOV_URL),
+          file=sys.stderr)
+    sys.exit(2)
+
+r = requests.get(CICOV_URL + '/view/get_rfes/%s' % product_name)
 cicov_rfes = {}
 
 data = json.loads(r.text)
@@ -38,7 +61,7 @@ URL = "bugzilla.redhat.com"
 
 bzapi = bugzilla.Bugzilla(URL)
 
-query = bzapi.build_query(product="RedHat OpenStack", savedsearch="osp15rfe")
+query = bzapi.build_query(savedsearch=bz_savedsearch)
 
 # query() is what actually performs the query. it's a wrapper around Bug.search
 t1 = time.time()
@@ -53,17 +76,16 @@ for rfe in rfes:
     bz_rfes[url] = rfe
     if url not in cicov_rfes:
         print("%s need to be created: %s" % (url, rfe.summary))
-        r = requests.post('http://localhost:8000/api/rfes',
+        r = requests.post(CICOV_URL + '/rfes',
                           {'url': url,
                            'name': rfe.summary,
-                           'product': 8,
+                           'product': product.id,
                            'tests': []
                            })
 
 for url in cicov_rfes:
     if url not in bz_rfes:
         print("%s do not exist anymore: %s" % (url, cicov_rfes[url]["name"]))
-        r = requests.delete('http://localhost:8000/api/rfes/%d' %
-                            cicov_rfes[url]["id"])
+        r = requests.delete(CICOV_URL + '/rfes/%d' % cicov_rfes[url]["id"])
 
 # sync_rfes.py ends here
