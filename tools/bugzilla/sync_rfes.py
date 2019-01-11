@@ -78,7 +78,7 @@ for rfe in rfes:
         r = requests.post(CICOV_URL + '/rfes',
                           {'url': url,
                            'name': rfe.summary,
-                           'product': product.id,
+                           'product': product['id'],
                            'tests': []
                            })
     elif rfe.summary != cicov_rfes[url]['name']:
